@@ -90,8 +90,8 @@ void setup()
 
   attachInterrupt(0, incrementFL, CHANGE);
   attachInterrupt(1, incrementRL, CHANGE);
-  attachInterrupt(2, incrementFR, CHANGE);
-  attachInterrupt(3, incrementRR, CHANGE);
+  attachInterrupt(4, incrementFR, CHANGE);
+  attachInterrupt(5, incrementRR, CHANGE);
   
   pinMode(2, INPUT);
   pinMode(3, INPUT);
