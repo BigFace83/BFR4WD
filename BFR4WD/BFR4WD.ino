@@ -46,7 +46,7 @@ int HeadPanDegrees = 0;
 int HeadTiltDegrees = 0;
 
 int SonarThreshold = 20;
-int IRThreshold = 300;
+int IRThreshold = 2000;
 
 /**************************************
 Interrupt handlers for encoders
