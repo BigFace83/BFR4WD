@@ -81,7 +81,7 @@ def SonarScan():
     SonarArray = []
     returned = BFR4WDserialport.sendcommand("S2 V10")
    
-    for x in range(-80,80,10):
+    for x in range(-80,80,5):
         string = "H1 P"+ str(x) + " T0"
         returned = BFR4WDserialport.sendcommand(string)
         sonar = int(BFR4WDserialport.sendcommand("G5"))

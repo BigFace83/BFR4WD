@@ -121,7 +121,7 @@ void loop()
 
   while(Serial.available() > 0)  // if something is available from serial port
   { 
-      digitalWrite(28, HIGH); //servo power relay on
+      
       char c=Serial.read();      // get it
       databuffer[serialcounter] = c; //add it to the data buffer
       serialcounter++;
@@ -158,6 +158,22 @@ void interpretcommand()
    switch(Svalue){
    case(1):{
        Vvalue = findchar('V');
+       if(Vvalue == 0)
+       {
+         digitalWrite(28, LOW); //servo power relay on
+         Serial.println("Power Off");
+         validcommand = true;
+       }
+       if(Vvalue == 1)
+       {
+         digitalWrite(28, HIGH); //servo power relay on
+         Serial.println("Power On");
+         validcommand = true;
+       }
+       break;}  
+     
+   case(2):{
+       Vvalue = findchar('V');
        if(Vvalue != -1)
        {
          WheelSpeed = Vvalue;
@@ -167,10 +183,16 @@ void interpretcommand()
        }
        break;}
        
-   case(2):{
+   case(3):{
        Vvalue = findchar('V');
        if(Vvalue != -1)
        {
+         if (Vvalue < 0 || Vvalue > 10)
+         {
+           //Speed value out of range. Change nothing and break.
+           //Error code E1 is returned as validcommand is not set to true here 
+           break;
+         }
          HeadSpeed = Vvalue;
          Serial.print("Head speed set to ");
          Serial.println(Vvalue);
@@ -252,6 +274,7 @@ void interpretcommand()
        }
        break;}
        
+    //Move arc forward   
     case(5):{
        Lvalue = findchar('L');
        if(Lvalue != -1)
@@ -273,6 +296,7 @@ void interpretcommand()
        }
        break;}
        
+    //Move arc reverse   
     case(6):{
        Lvalue = findchar('L');
        if(Lvalue != -1)
@@ -291,6 +315,30 @@ void interpretcommand()
                  Serial.println("E4"); 
              validcommand = true;
          }    
+       }
+       break;}
+       
+    // Turn to compass heading clockwise  
+    case(7):{
+       Vvalue = findchar('V');
+       if(Vvalue != -1)
+       {
+          if(Vvalue < 0 || Vvalue > 358)
+          {
+            //value is outside of compass range. Ignore command and break.
+            //Error code E1 is returned as validcommand is not set to true here
+            break;
+          }
+          int retval = moveheading(Vvalue);
+          if (retval==0)
+              Serial.println("E0");
+          else if (retval==1) 
+              Serial.println("E2");
+          else if (retval==2) 
+              Serial.println("E3");
+          else if (retval==3) 
+              Serial.println("E4"); 
+          validcommand = true;    
        }
        break;}
        
@@ -898,6 +946,168 @@ int movearc(int robotdirection, int leftencoder, int rightencoder)
         }
             
             
+             
+  }   
+}
+
+
+
+
+int moveheading(int compass)
+{
+
+  int pgain = 3;
+  int FLwheelspeed = 1500;
+  int RLwheelspeed = 1500;
+  int FRwheelspeed = 1500;
+  int RRwheelspeed = 1500;
+  int FLsetpoint;
+  int RLsetpoint;
+  int FRsetpoint;
+  int RRsetpoint;
+  
+  int compassfirst = readcompass(); 
+  int difference = compass - compassfirst;
+  
+  if (difference > 0)
+  {
+    //Turn right on the spot
+      FLsetpoint = -WheelSpeed;
+      RLsetpoint = -WheelSpeed;
+      FRsetpoint = -WheelSpeed;
+      RRsetpoint = -WheelSpeed;
+  }
+  else
+  {
+    //Turn left on the spot
+      FLsetpoint = WheelSpeed;
+      RLsetpoint = WheelSpeed;
+      FRsetpoint = WheelSpeed;
+      RRsetpoint = WheelSpeed;
+  }
+    
+    
+  //initialize all encoder counts to zero before
+  //entering pid loop
+  FLencodertotal = 0;
+  RLencodertotal = 0;
+  FRencodertotal = 0;
+  RRencodertotal = 0;
+  FLencoder = 0;
+  RLencoder = 0;
+  FRencoder = 0;
+  RRencoder = 0;
+  
+  
+  
+  while(true){
+    
+        unsigned long currentMillis = millis();
+        
+        if(currentMillis - previousMilliswheels > 100) //use this to determine frequency of servo loop
+        {
+            // save the last time pid loop was called
+            previousMilliswheels = currentMillis;
+            
+            /*******************************************************************************************
+            * Control loop for front left wheel   
+            *******************************************************************************************/
+
+           if(FLsetpoint>0)
+           {
+               double perror = FLsetpoint - FLencoder;
+               FLencoder = 0;
+               FLwheelspeed = FLwheelspeed + ((double)pgain*perror);
+           }
+    
+           else if(FLsetpoint<0)
+           {
+               double perror = -FLsetpoint - FLencoder;
+               FLencoder = 0;
+               FLwheelspeed = FLwheelspeed - ((double)pgain*perror);
+           }
+    
+
+           /*******************************************************************************************
+           * Control loop for rear left wheel   
+           *******************************************************************************************/
+      
+           if(RLsetpoint>0)
+           {
+               double perror = RLsetpoint - RLencoder;
+               RLencoder = 0;
+               RLwheelspeed = RLwheelspeed + ((double)pgain*perror);
+           }
+    
+           else if(RLsetpoint<0)
+           {
+               double perror = -RLsetpoint - RLencoder;
+               RLencoder = 0;
+               RLwheelspeed = RLwheelspeed - ((double)pgain*perror);
+           }
+           
+           /*******************************************************************************************
+            * Control loop for front right wheel   
+            *******************************************************************************************/
+
+           if(FRsetpoint>0)
+           {
+               double perror = FRsetpoint - FRencoder;
+               FRencoder = 0;
+               FRwheelspeed = FRwheelspeed + ((double)pgain*perror);
+           }
+    
+           else if(FRsetpoint<0)
+           {
+               double perror = -FRsetpoint - FRencoder;
+               FRencoder = 0;
+               FRwheelspeed = FRwheelspeed - ((double)pgain*perror);
+           }
+    
+
+           /*******************************************************************************************
+           * Control loop for rear right wheel   
+           *******************************************************************************************/
+      
+           if(RRsetpoint>0)
+           {
+               double perror = RRsetpoint - RRencoder;
+               RRencoder = 0;
+               RRwheelspeed = RRwheelspeed + ((double)pgain*perror);
+           }
+    
+           else if(RRsetpoint<0)
+           {
+               double perror = -RRsetpoint - RRencoder;
+               RRencoder = 0;
+               RRwheelspeed = RRwheelspeed - ((double)pgain*perror);
+           }
+    
+          //set new wheel speeds
+          FLwheel.writeMicroseconds(FLwheelspeed);
+          RLwheel.writeMicroseconds(RLwheelspeed);
+          FRwheel.writeMicroseconds(FRwheelspeed);
+          RRwheel.writeMicroseconds(RRwheelspeed);
+        
+        
+        }
+        /*******************************************************************************************
+        * Check to see if compass heading setpoint has been reached
+        * If it has, stop the wheels and return
+        *******************************************************************************************/
+        
+        int compasscurrent = readcompass();
+
+        if(compasscurrent >= (compass-2) && compasscurrent <= (compass+2)) //if compass target has been reached
+        {
+          FLwheel.writeMicroseconds(1500); //stop the wheels
+          RLwheel.writeMicroseconds(1500); //as a double check that wheels are stopped
+          FRwheel.writeMicroseconds(1500);
+          RRwheel.writeMicroseconds(1500);
+          return 0; //return from while loop
+        }
+        delay(10);
+        
              
   }   
 }
