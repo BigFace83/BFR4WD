@@ -16,8 +16,8 @@ DisplayImage = False
 print "Starting OpenCV"
 capture = cv2.VideoCapture(0)
 
-capture.set(3,1280) #1024 640 1280 800 384
-capture.set(4,960) #600 480 960 600 288
+capture.set(3,640) #1024 640 1280 800 384
+capture.set(4,480) #600 480 960 600 288
 
 if DisplayImage is True:
     cv2.namedWindow("camera", 0)

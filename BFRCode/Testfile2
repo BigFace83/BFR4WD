@@ -1,7 +1,9 @@
 #This is a test
 
-S1 V15 #Set speeds
-S2 V5
+S2 V15 #Set speeds
+S3 V5
+
+S1 V1 #Servo power on
 
 H1 P0 T0 
 IMGSAVE
@@ -51,4 +53,5 @@ IMGSAVE
 W2 D50
 IMGSAVE
 
+S1 V0 #Servo power off
 

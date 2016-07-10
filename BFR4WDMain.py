@@ -79,6 +79,7 @@ def GetIR():
 def SonarScan():
 
     SonarArray = []
+    returned = BFR4WDserialport.sendcommand("S1 V1") #Servo power on
     returned = BFR4WDserialport.sendcommand("S2 V10")
    
     for x in range(-80,80,5):
@@ -86,6 +87,8 @@ def SonarScan():
         returned = BFR4WDserialport.sendcommand(string)
         sonar = int(BFR4WDserialport.sendcommand("G5"))
         SonarArray.append(sonar)
+
+    returned = BFR4WDserialport.sendcommand("S1 V0") #Servo power off
    
     return SonarArray
 
@@ -199,21 +202,24 @@ def manualmode():
 ########################################################################################
 
 while True:
-    print "Mode options: M = manual mode.  A = Move and Look.  B = Square. S = Sonar Scan. T = Test"
+    print "Mode options: M = manual mode.  A = Move and Look.  B = Square. S = Sonar Scan. T = Test, I = Image"
     mode = raw_input("Mode:  ")
     if mode == 'M':
         manualmode()
     elif mode == 'A':
         time.sleep(3)
-        RunSequence(["S1 V8","S2 V4","H1 P0 T0", "W1 D300", "H1 P-80", "W1 D300", "W2 D300","S1 V25","H1 P0","W1 D400"])
+        RunSequence(["S1V1","S2 V8","S3 V4","H1 P0 T0", "W1 D300", "H1 P-80", "W1 D300", "W2 D300","S1 V25","H1 P0","W1 D400","S1V0"])
     elif mode == 'B':
         time.sleep(3)
-        RunSequence(["S1 V15","S2 V3", "W1 D200","W3 D160","W1 D200","W3 D160","W1 D200","W3 D160","W1 D200","W3 D160"])
+        RunSequence(["S1V1","S2 V15","S3 V3", "W1 D200","W3 D160","W1 D200","W3 D160","W1 D200","W3 D160","W1 D200","W3 D160","S1V0"])
     elif mode == 'S':
         SonarArray = SonarScan()
         print SonarArray
     elif mode == 'T':
         RunFileSequence('BFRCode/Testfile')
+    elif mode == 'I':
+        BFR4WDOpenCV.DisplayFrame()
+        
         
 
 
