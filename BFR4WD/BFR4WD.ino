@@ -30,6 +30,10 @@ int RRencoder;
 int RRencodertotal;
 int RRencoderreturn;
 
+float pulsespercm = 6.94;
+float pulsesperdegree = 1.8;
+boolean servopoweron = false;
+
 
 char databuffer[BUFFERSIZE];
 int serialcounter = 0;
@@ -162,12 +166,14 @@ void interpretcommand()
        {
          digitalWrite(28, LOW); //servo power relay on
          Serial.println("Power Off");
+         servopoweron = false;
          validcommand = true;
        }
        if(Vvalue == 1)
        {
          digitalWrite(28, HIGH); //servo power relay on
          Serial.println("Power On");
+         servopoweron = true;
          validcommand = true;
        }
        break;}  
@@ -204,13 +210,18 @@ void interpretcommand()
    
    //Then check for any wheel move commands and execute
    
-   Wvalue = findchar('W'); 
+   Wvalue = findchar('W');
+   if (Wvalue != -1 && servopoweron == false) //don't bother trying to move if servo power is not on
+   {
+       Serial.println("Servo power is off!");
+       return;
+   }
    switch(Wvalue){
    case(1):{
        Dvalue = findchar('D');
        if(Dvalue != -1)
        {
-         int retval = moverobot(Wvalue, Dvalue);
+         int retval = moverobot(Wvalue, Dvalue*pulsespercm); //convert cm to pulses
          if (retval==0)
              Serial.println("E0");
          else if (retval==1) 
@@ -227,7 +238,7 @@ void interpretcommand()
        Dvalue = findchar('D');
        if(Dvalue != -1)
        {
-         int retval = moverobot(Wvalue, Dvalue);
+         int retval = moverobot(Wvalue, Dvalue*pulsespercm); //convert cm to pulses
          if (retval==0)
              Serial.println("E0");
          else if (retval==1) 
@@ -244,7 +255,7 @@ void interpretcommand()
        Dvalue = findchar('D');
        if(Dvalue != -1)
        {
-         int retval = moverobot(Wvalue, Dvalue);
+         int retval = moverobot(Wvalue, Dvalue*pulsesperdegree); //convert cm to pulses
          if (retval==0)
              Serial.println("E0");
          else if (retval==1) 
@@ -261,7 +272,7 @@ void interpretcommand()
        Dvalue = findchar('D');
        if(Dvalue != -1)
        {
-         int retval = moverobot(Wvalue, Dvalue);
+         int retval = moverobot(Wvalue, Dvalue*pulsesperdegree); //convert cm to pulses
          if (retval==0)
              Serial.println("E0");
          else if (retval==1) 
@@ -282,7 +293,7 @@ void interpretcommand()
          Rvalue = findchar('R');
          if(Rvalue != -1)
          {
-             int retval = movearc(1, Lvalue, Rvalue);
+             int retval = movearc(1, Lvalue*pulsespercm, Rvalue*pulsespercm);
              if (retval==0)
                  Serial.println("E0");
              else if (retval==1) 
@@ -304,7 +315,7 @@ void interpretcommand()
          Rvalue = findchar('R');
          if(Rvalue != -1)
          {
-             int retval = movearc(2, Lvalue, Rvalue);
+             int retval = movearc(2, Lvalue*pulsespercm, Rvalue*pulsespercm);
              if (retval==0)
                  Serial.println("E0");
              else if (retval==1) 
@@ -532,77 +543,21 @@ int moverobot(int robotdirection, int encodercount)
             previousMilliswheels = currentMillis;
             
             /*******************************************************************************************
-            * Control loop for front left wheel   
+            * Control loop for wheels  
             *******************************************************************************************/
 
-           if(FLsetpoint>0)
-           {
-               double perror = FLsetpoint - FLencoder;
-               FLencoder = 0;
-               FLwheelspeed = FLwheelspeed + ((double)pgain*perror);
-           }
-    
-           else if(FLsetpoint<0)
-           {
-               double perror = -FLsetpoint - FLencoder;
-               FLencoder = 0;
-               FLwheelspeed = FLwheelspeed - ((double)pgain*perror);
-           }
-    
-
-           /*******************************************************************************************
-           * Control loop for rear left wheel   
-           *******************************************************************************************/
-      
-           if(RLsetpoint>0)
-           {
-               double perror = RLsetpoint - RLencoder;
-               RLencoder = 0;
-               RLwheelspeed = RLwheelspeed + ((double)pgain*perror);
-           }
-    
-           else if(RLsetpoint<0)
-           {
-               double perror = -RLsetpoint - RLencoder;
-               RLencoder = 0;
-               RLwheelspeed = RLwheelspeed - ((double)pgain*perror);
-           }
-           /*******************************************************************************************
-            * Control loop for front right wheel   
-            *******************************************************************************************/
-
-           if(FRsetpoint>0)
-           {
-               double perror = FRsetpoint - FRencoder;
-               FRencoder = 0;
-               FRwheelspeed = FRwheelspeed + ((double)pgain*perror);
-           }
-    
-           else if(FRsetpoint<0)
-           {
-               double perror = -FRsetpoint - FRencoder;
-               FRencoder = 0;
-               FRwheelspeed = FRwheelspeed - ((double)pgain*perror);
-           }
-    
-
-           /*******************************************************************************************
-           * Control loop for rear right wheel   
-           *******************************************************************************************/
-      
-           if(RRsetpoint>0)
-           {
-               double perror = RRsetpoint - RRencoder;
-               RRencoder = 0;
-               RRwheelspeed = RRwheelspeed + ((double)pgain*perror);
-           }
-    
-           else if(RRsetpoint<0)
-           {
-               double perror = -RRsetpoint - RRencoder;
-               RRencoder = 0;
-               RRwheelspeed = RRwheelspeed - ((double)pgain*perror);
-           }
+           FLwheelspeed = WheelLoop(FLwheelspeed, FLsetpoint, FLencoder, pgain);
+           FLencoder = 0;
+           
+           RLwheelspeed = WheelLoop(RLwheelspeed, RLsetpoint, RLencoder, pgain);
+           RLencoder = 0;
+           
+           FRwheelspeed = WheelLoop(FRwheelspeed, FRsetpoint, FRencoder, pgain);
+           FRencoder = 0;
+           
+           RRwheelspeed = WheelLoop(RRwheelspeed, RRsetpoint, RRencoder, pgain);
+           RRencoder = 0;
+           
     
           //set new wheel speeds
           FLwheel.writeMicroseconds(FLwheelspeed);
@@ -700,6 +655,23 @@ int moverobot(int robotdirection, int encodercount)
 
 
 
+int WheelLoop(int wheelspeed, int setpoint, int encoder, int pgain)
+{
+    if(setpoint>0)
+    {
+        double perror = setpoint - encoder;
+        wheelspeed = wheelspeed + ((double)pgain*perror);
+        return wheelspeed;
+    }
+    
+    else if(setpoint<0)
+    {
+        double perror = -setpoint - encoder;
+        wheelspeed = wheelspeed - ((double)pgain*perror);
+        return wheelspeed;
+    }
+}
+
 
 
 
@@ -787,77 +759,20 @@ int movearc(int robotdirection, int leftencoder, int rightencoder)
             previousMilliswheels = currentMillis;
             
             /*******************************************************************************************
-            * Control loop for front left wheel   
+            * Control loop for wheels  
             *******************************************************************************************/
 
-           if(FLsetpoint>0)
-           {
-               double perror = FLsetpoint - FLencoder;
-               FLencoder = 0;
-               FLwheelspeed = FLwheelspeed + ((double)pgain*perror);
-           }
-    
-           else if(FLsetpoint<0)
-           {
-               double perror = -FLsetpoint - FLencoder;
-               FLencoder = 0;
-               FLwheelspeed = FLwheelspeed - ((double)pgain*perror);
-           }
-    
-
-           /*******************************************************************************************
-           * Control loop for rear left wheel   
-           *******************************************************************************************/
-      
-           if(RLsetpoint>0)
-           {
-               double perror = RLsetpoint - RLencoder;
-               RLencoder = 0;
-               RLwheelspeed = RLwheelspeed + ((double)pgain*perror);
-           }
-    
-           else if(RLsetpoint<0)
-           {
-               double perror = -RLsetpoint - RLencoder;
-               RLencoder = 0;
-               RLwheelspeed = RLwheelspeed - ((double)pgain*perror);
-           }
-           /*******************************************************************************************
-            * Control loop for front right wheel   
-            *******************************************************************************************/
-
-           if(FRsetpoint>0)
-           {
-               double perror = FRsetpoint - FRencoder;
-               FRencoder = 0;
-               FRwheelspeed = FRwheelspeed + ((double)pgain*perror);
-           }
-    
-           else if(FRsetpoint<0)
-           {
-               double perror = -FRsetpoint - FRencoder;
-               FRencoder = 0;
-               FRwheelspeed = FRwheelspeed - ((double)pgain*perror);
-           }
-    
-
-           /*******************************************************************************************
-           * Control loop for rear right wheel   
-           *******************************************************************************************/
-      
-           if(RRsetpoint>0)
-           {
-               double perror = RRsetpoint - RRencoder;
-               RRencoder = 0;
-               RRwheelspeed = RRwheelspeed + ((double)pgain*perror);
-           }
-    
-           else if(RRsetpoint<0)
-           {
-               double perror = -RRsetpoint - RRencoder;
-               RRencoder = 0;
-               RRwheelspeed = RRwheelspeed - ((double)pgain*perror);
-           }
+           FLwheelspeed = WheelLoop(FLwheelspeed, FLsetpoint, FLencoder, pgain);
+           FLencoder = 0;
+           
+           RLwheelspeed = WheelLoop(RLwheelspeed, RLsetpoint, RLencoder, pgain);
+           RLencoder = 0;
+           
+           FRwheelspeed = WheelLoop(FRwheelspeed, FRsetpoint, FRencoder, pgain);
+           FRencoder = 0;
+           
+           RRwheelspeed = WheelLoop(RRwheelspeed, RRsetpoint, RRencoder, pgain);
+           RRencoder = 0;
     
           //set new wheel speeds
           FLwheel.writeMicroseconds(FLwheelspeed);
@@ -1010,78 +925,20 @@ int moveheading(int compass)
             previousMilliswheels = currentMillis;
             
             /*******************************************************************************************
-            * Control loop for front left wheel   
+            * Control loop for wheels  
             *******************************************************************************************/
 
-           if(FLsetpoint>0)
-           {
-               double perror = FLsetpoint - FLencoder;
-               FLencoder = 0;
-               FLwheelspeed = FLwheelspeed + ((double)pgain*perror);
-           }
-    
-           else if(FLsetpoint<0)
-           {
-               double perror = -FLsetpoint - FLencoder;
-               FLencoder = 0;
-               FLwheelspeed = FLwheelspeed - ((double)pgain*perror);
-           }
-    
-
-           /*******************************************************************************************
-           * Control loop for rear left wheel   
-           *******************************************************************************************/
-      
-           if(RLsetpoint>0)
-           {
-               double perror = RLsetpoint - RLencoder;
-               RLencoder = 0;
-               RLwheelspeed = RLwheelspeed + ((double)pgain*perror);
-           }
-    
-           else if(RLsetpoint<0)
-           {
-               double perror = -RLsetpoint - RLencoder;
-               RLencoder = 0;
-               RLwheelspeed = RLwheelspeed - ((double)pgain*perror);
-           }
+           FLwheelspeed = WheelLoop(FLwheelspeed, FLsetpoint, FLencoder, pgain);
+           FLencoder = 0;
            
-           /*******************************************************************************************
-            * Control loop for front right wheel   
-            *******************************************************************************************/
-
-           if(FRsetpoint>0)
-           {
-               double perror = FRsetpoint - FRencoder;
-               FRencoder = 0;
-               FRwheelspeed = FRwheelspeed + ((double)pgain*perror);
-           }
-    
-           else if(FRsetpoint<0)
-           {
-               double perror = -FRsetpoint - FRencoder;
-               FRencoder = 0;
-               FRwheelspeed = FRwheelspeed - ((double)pgain*perror);
-           }
-    
-
-           /*******************************************************************************************
-           * Control loop for rear right wheel   
-           *******************************************************************************************/
-      
-           if(RRsetpoint>0)
-           {
-               double perror = RRsetpoint - RRencoder;
-               RRencoder = 0;
-               RRwheelspeed = RRwheelspeed + ((double)pgain*perror);
-           }
-    
-           else if(RRsetpoint<0)
-           {
-               double perror = -RRsetpoint - RRencoder;
-               RRencoder = 0;
-               RRwheelspeed = RRwheelspeed - ((double)pgain*perror);
-           }
+           RLwheelspeed = WheelLoop(RLwheelspeed, RLsetpoint, RLencoder, pgain);
+           RLencoder = 0;
+           
+           FRwheelspeed = WheelLoop(FRwheelspeed, FRsetpoint, FRencoder, pgain);
+           FRencoder = 0;
+           
+           RRwheelspeed = WheelLoop(RRwheelspeed, RRsetpoint, RRencoder, pgain);
+           RRencoder = 0;
     
           //set new wheel speeds
           FLwheel.writeMicroseconds(FLwheelspeed);
