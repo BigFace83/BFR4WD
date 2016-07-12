@@ -1,61 +1,92 @@
 from Tkinter import *
 import BFR4WDserialGUI
+import BFR4WDOpenCVGui
 
 
 
 class Application(Frame):
     def __init__(self, master=None):
         Frame.__init__(self, master)
-        self.pack()
+        #self.pack()
+        self.grid()
         self.createWidgets()
 
     def createWidgets(self):
 
-
+        ##################################################################
+        # Robot Move control graphics
+        ##################################################################
         self.TurnACWcontrol = Canvas(self, width=200, height=50)
-        self.TurnACWcontrol.pack(side=LEFT)
+        self.TurnACWcontrol.grid(row = 0, column = 0)
         self.TurnACW = PhotoImage(file='Images/BFR4WDTurnACW.gif')
         self.TurnACWcontrol .create_image(0,0, anchor=NW, image=self.TurnACW)
         self.TurnACWcontrol.bind('<Button-1>', self.TurnACWclick)
 
         self.FRcontrol = Canvas(self, width=50, height=255)
-        self.FRcontrol.pack(side=LEFT)
+        self.FRcontrol.grid(row = 0, column = 1)
         self.FRBar= PhotoImage(file='Images/BFR4WDFRBar.gif')
         self.FRcontrol .create_image(0,0, anchor=NW, image=self.FRBar)
         self.FRcontrol.bind('<Button-1>', self.FRclick)
 
         self.TurnCWcontrol = Canvas(self, width=200, height=50)
-        self.TurnCWcontrol.pack(side=LEFT)
+        self.TurnCWcontrol.grid(row = 0, column = 2)
         self.TurnCW = PhotoImage(file='Images/BFR4WDTurnCW.gif')
         self.TurnCWcontrol .create_image(0,0, anchor=NW, image=self.TurnCW)
         self.TurnCWcontrol.bind('<Button-1>', self.TurnCWclick)
 
         
+        ##################################################################
+        # Head control graphics
+        ##################################################################
+
+        self.HeadTiltcontrol = Canvas(self, width=50, height=255)
+        self.HeadTiltcontrol.grid(row = 0, column = 3)
+        self.HeadTilt = PhotoImage(file='Images/BFR4WDHeadTilt.gif')
+        self.HeadTiltcontrol .create_image(0,0, anchor=NW, image=self.HeadTilt)
+        self.HeadTiltcontrol.bind('<Button-1>', self.HeadTiltclick)
+
+
+        self.HeadPancontrol = Canvas(self, width=255, height=50)
+        self.HeadPancontrol.grid(row = 0, column = 4)
+        self.HeadPan = PhotoImage(file='Images/BFR4WDHeadPan.gif')
+        self.HeadPancontrol .create_image(0,0, anchor=NW, image=self.HeadPan)
+        self.HeadPancontrol.bind('<Button-1>', self.HeadPanclick)
+
+
+
+
+
+
+
 
         self.commandEntry= Entry(self)
-        self.commandEntry.pack(side=LEFT)
+        self.commandEntry.grid(row = 1, column = 0)
         self.commandEntry.bind('<Return>', self.sendCommand)
 
         self.returnEntry= Entry(self)
-        self.returnEntry.pack(side=LEFT)
+        self.returnEntry.grid(row = 1, column = 1,columnspan=2)
 
         self.send = Button(self, text="Send")
         self.send.bind('<Button-1>', self.sendCommand)
-        self.send.pack(side=LEFT)
+        self.send.grid(row = 2, column = 0)
 
         self.servoOnbutton = Button(self, text="Servo Power On")
         self.servoOnbutton.bind('<Button-1>', self.servoOn)
-        self.servoOnbutton.pack(side=LEFT)
+        self.servoOnbutton.grid(row = 1, column = 5)
 
         self.servoOffbutton = Button(self, text="Servo Power Off")
         self.servoOffbutton.bind('<Button-1>', self.servoOff)
-        self.servoOffbutton.pack(side=LEFT)
+        self.servoOffbutton.grid(row = 2, column = 5)
+
+        self.Capturebutton = Button(self, text="Capture")
+        self.Capturebutton.bind('<Button-1>', self.CaptureImage)
+        self.Capturebutton.grid(row = 3, column = 5)
 
         
        
 
         self.QUIT = Button(self, text="QUIT", fg="red",command=root.destroy)
-        self.QUIT.pack(side=BOTTOM)
+        self.QUIT.grid(row = 3, column = 3)
 
 
     def sendCommand(self,event):
@@ -145,6 +176,69 @@ class Application(Frame):
             self.returnEntry.delete(0,END)
             self.returnEntry.insert(10,returned)  
 
+
+    def HeadPanclick(self,event):
+        self.returnEntry.delete(0,END)
+        if event.x < 40 and event.x > 10:
+            returned = BFR4WDserialGUI.sendcommand('H1P-90')
+            self.returnEntry.delete(0,END)
+            self.returnEntry.insert(10,returned) 
+        if event.x < 75 and event.x > 40:
+            returned = BFR4WDserialGUI.sendcommand('H1P-45')
+            self.returnEntry.delete(0,END)
+            self.returnEntry.insert(10,returned) 
+        if event.x < 110 and event.x > 75:
+            returned = BFR4WDserialGUI.sendcommand('H1P-20')
+            self.returnEntry.delete(0,END)
+            self.returnEntry.insert(10,returned) 
+        if event.x < 145 and event.x > 110:
+            returned = BFR4WDserialGUI.sendcommand('H1P0')
+            self.returnEntry.delete(0,END)
+            self.returnEntry.insert(10,returned) 
+        if event.x < 175 and event.x > 145:
+            returned = BFR4WDserialGUI.sendcommand('H1P20')
+            self.returnEntry.delete(0,END)
+            self.returnEntry.insert(10,returned) 
+        if event.x < 210 and event.x > 175:
+            returned = BFR4WDserialGUI.sendcommand('H1P45')
+            self.returnEntry.delete(0,END)
+            self.returnEntry.insert(10,returned) 
+        if event.x < 250 and event.x > 210:
+            returned = BFR4WDserialGUI.sendcommand('H1P90')
+            self.returnEntry.delete(0,END)
+            self.returnEntry.insert(10,returned) 
+
+    def HeadTiltclick(self,event):
+        self.returnEntry.delete(0,END)
+        if event.y < 40 and event.y > 10:
+            returned = BFR4WDserialGUI.sendcommand('H1T90')
+            self.returnEntry.delete(0,END)
+            self.returnEntry.insert(10,returned) 
+        if event.y < 75 and event.y > 40:
+            returned = BFR4WDserialGUI.sendcommand('H1T45')
+            self.returnEntry.delete(0,END)
+            self.returnEntry.insert(10,returned) 
+        if event.y < 110 and event.y > 75:
+            returned = BFR4WDserialGUI.sendcommand('H1T20')
+            self.returnEntry.delete(0,END)
+            self.returnEntry.insert(10,returned) 
+        if event.y < 145 and event.y > 110:
+            returned = BFR4WDserialGUI.sendcommand('H1T0')
+            self.returnEntry.delete(0,END)
+            self.returnEntry.insert(10,returned) 
+        if event.y < 175 and event.y > 145:
+            returned = BFR4WDserialGUI.sendcommand('H1T-20')
+            self.returnEntry.delete(0,END)
+            self.returnEntry.insert(10,returned) 
+        if event.y < 210 and event.y > 175:
+            returned = BFR4WDserialGUI.sendcommand('H1T-45')
+            self.returnEntry.delete(0,END)
+            self.returnEntry.insert(10,returned) 
+        if event.y < 250 and event.y > 210:
+            returned = BFR4WDserialGUI.sendcommand('H1T-90')
+            self.returnEntry.delete(0,END)
+            self.returnEntry.insert(10,returned) 
+
         
     def servoOn(self,event):
         returned = BFR4WDserialGUI.sendcommand('S1V1')
@@ -155,6 +249,9 @@ class Application(Frame):
         returned = BFR4WDserialGUI.sendcommand('S1V0')
         self.returnEntry.delete(0,END)
         self.returnEntry.insert(10,returned) 
+
+    def CaptureImage(self,event):
+        BFR4WDOpenCVGui.DisplayFrame()
 
 
 root = Tk()
