@@ -3,7 +3,7 @@
 Author : Peter Neal
 
 BFR4WD
-Software for BFR4WDmobile robot.
+Software for BFR4WD mobile robot.
 
 Contains arduino code and python scripts to run on the onboard Raspberry pi.
 
