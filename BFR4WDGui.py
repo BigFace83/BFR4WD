@@ -1,4 +1,6 @@
 from Tkinter import *
+from PIL import Image
+from PIL import ImageTk
 import BFR4WDserialGUI
 import BFR4WDOpenCVGui
 
@@ -7,7 +9,6 @@ import BFR4WDOpenCVGui
 class Application(Frame):
     def __init__(self, master=None):
         Frame.__init__(self, master)
-        #self.pack()
         self.grid()
         self.createWidgets()
 
@@ -52,10 +53,8 @@ class Application(Frame):
         self.HeadPancontrol .create_image(0,0, anchor=NW, image=self.HeadPan)
         self.HeadPancontrol.bind('<Button-1>', self.HeadPanclick)
 
-
-
-
-
+        self.CamImage = Canvas(self, width=320, height=240,bg = "black")
+        self.CamImage.grid(row = 0, column = 5)
 
 
 
@@ -78,12 +77,10 @@ class Application(Frame):
         self.servoOffbutton.bind('<Button-1>', self.servoOff)
         self.servoOffbutton.grid(row = 2, column = 5)
 
-        self.Capturebutton = Button(self, text="Capture")
-        self.Capturebutton.bind('<Button-1>', self.CaptureImage)
+        self.Capturebutton = Button(self, text="Capture", command = self.CaptureImage)
+        #self.Capturebutton.bind('<Button-1>', self.CaptureImage)
         self.Capturebutton.grid(row = 3, column = 5)
 
-        
-       
 
         self.QUIT = Button(self, text="QUIT", fg="red",command=root.destroy)
         self.QUIT.grid(row = 3, column = 3)
@@ -250,8 +247,14 @@ class Application(Frame):
         self.returnEntry.delete(0,END)
         self.returnEntry.insert(10,returned) 
 
-    def CaptureImage(self,event):
-        BFR4WDOpenCVGui.DisplayFrame()
+    def CaptureImage(self):
+        self.OpenCVImage = BFR4WDOpenCVGui.ReturnFrameRGB()
+        self.OpenCVImage = Image.fromarray(self.OpenCVImage)
+        self.OpenCVImage = self.OpenCVImage.resize((320, 240), Image.ANTIALIAS)
+	self.OpenCVImage = ImageTk.PhotoImage(self.OpenCVImage)
+        self.CamImage .create_image(0,0, anchor=NW, image=self.OpenCVImage)
+        
+        
 
 
 root = Tk()

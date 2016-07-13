@@ -11,7 +11,7 @@ from colorama import init,Fore
 init(autoreset=True)
 
 
-DisplayImage = True
+DisplayImage = False
 
 print "Starting OpenCV"
 capture = cv2.VideoCapture(0)
@@ -47,6 +47,25 @@ def DisplayFrame():
     cv2.waitKey(20)
 
     return img
+
+
+##################################################################################################
+#
+# Return Frame RGB - Capture a frame and returns an RGB version of the image
+#
+##################################################################################################
+def ReturnFrameRGB():
+
+    ret,img = capture.read()
+    ret,img = capture.read()
+    ret,img = capture.read()
+    ret,img = capture.read()
+    ret,img = capture.read() #get a bunch of frames to make sure current frame is the most recent
+
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    return img
+
 
 ##################################################################################################
 #
