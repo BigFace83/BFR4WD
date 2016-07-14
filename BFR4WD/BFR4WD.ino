@@ -963,7 +963,7 @@ int moveheading(int compass)
           RRwheel.writeMicroseconds(1500);
           return 0; //return from while loop
         }
-        delay(10);
+        delay(20);
         
              
   }   
