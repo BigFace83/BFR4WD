@@ -3,6 +3,7 @@ from PIL import Image
 from PIL import ImageTk
 import BFR4WDserialGUI
 import BFR4WDOpenCVGui
+import math
 
 
 
@@ -11,6 +12,11 @@ class Application(Frame):
         Frame.__init__(self, master)
         self.grid()
         self.createWidgets()
+        self.updateInterval = 100
+        self.compassAngle = 0
+        self.oktoupdatecompass = True
+        self.after(self.updateInterval, self.updateCompass)
+        self.after(self.updateInterval, self.updateSonar)
 
     def createWidgets(self):
 
@@ -41,8 +47,18 @@ class Application(Frame):
         self.compassControl.grid(row = 0, column = 4)
         self.compassImg = PhotoImage(file='Images/BFR4WDCompass.gif')
         self.compassControl .create_image(0,0, anchor=NW, image=self.compassImg)
+        self.compassControl.create_oval(25, 25, 127, 127, fill="white",outline="white")
+        self.compassControl.create_line(76, 76, 76, 25, fill="black", width=3)
         self.compassControl.bind('<B1-Motion>',  self.TurnToHeading)
+        self.compassControl.bind(' <ButtonRelease-1>',  self.commandHeading)
+       
         
+        ##################################################################
+        # Sonar graphics
+        ##################################################################
+        self.sonarCanvas = Canvas(self, width=152, height=152, bg = 'black')
+        self.sonarCanvas.grid(row = 1, column = 4)
+
 
 
         self.CamImage = Canvas(self, width=320, height=240,bg = "black")
@@ -246,16 +262,24 @@ class Application(Frame):
 
 
     def TurnToHeading(self,event):
-        self.returnEntry.delete(0,END)
-        self.returnEntry.insert(10,'X = ' + str(event.x))  
-        self.returnEntry.insert(10,' Y = ' + str(event.y)) 
-        #self.compassControl .create_image(0,0, anchor=NW, image=self.compassImg)
+         
+        self.oktoupdatecompass = False #inhibit drawing actual value whilst selecting new
+        self.compassControl.create_oval(25, 25, 127, 127, fill="white",outline="white")
+        anglerad = math.atan2(event.x-76,76-event.y)
+        self.compassAngle = math.degrees(anglerad)
+        if self.compassAngle< 0:
+            self.compassAngle = 360 + self.compassAngle
+
+        circlex = 76 + (math.sin(anglerad)*51)
+        circley = 76 - (math.cos(anglerad)*51)
         
-        curX, curY = (event.x, event.y)
-        self.compassControl.create_line(76, 76, curX, curY, fill="black")
+        self.compassControl.create_line(76, 76, circlex, circley, fill="black", width=3)
 
-
-
+    def commandHeading(self,event):
+        returned = BFR4WDserialGUI.sendcommand('W7V' + str(self.compassAngle))
+        self.returnEntry.insert(10,returned)
+        self.oktoupdatecompass = True
+        self.after(self.updateInterval, self.updateCompass) #restart drawing actual value after new angle is sent
 
 
 
@@ -278,7 +302,26 @@ class Application(Frame):
         self.CamImage .create_image(0,0, anchor=NW, image=self.OpenCVImage)
         
 
+    def updateCompass(self):
+        self.compassControl.create_oval(25, 25, 127, 127, fill="white",outline="white")
+        returned = BFR4WDserialGUI.sendcommand('G8')
+        anglerad = math.radians(float(returned))
+        circlex = 76 + (math.sin(anglerad)*51)
+        circley = 76 - (math.cos(anglerad)*51)
+        self.compassControl.create_line(76, 76, circlex, circley, fill="red", width=3)
+        if self.oktoupdatecompass:
+            self.after(self.updateInterval, self.updateCompass)
 
+    def updateSonar(self):
+        returned = BFR4WDserialGUI.sendcommand('G5')
+        self.sonarCanvas.delete("all")
+
+        y = 152-(int(returned)/1.5)
+        self.sonarCanvas.create_polygon((76,152),(56,y),(96,y), fill='yellow')
+        #self.sonarCanvas.create_rectangle(56, 152, 96, y, fill='yellow')
+        self.sonarCanvas.create_text(20,132,fill = 'yellow',text = str(returned) + 'cm')
+        self.after(self.updateInterval, self.updateSonar)
+        
 
 root = Tk()
 root.title("BFR4WD")
