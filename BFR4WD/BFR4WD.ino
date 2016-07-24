@@ -31,7 +31,7 @@ int RRencodertotal;
 int RRencoderreturn;
 
 float pulsespercm = 6.94;
-float pulsesperdegree = 1.8;
+float pulsesperdegree = 2.1;
 boolean servopoweron = false;
 
 

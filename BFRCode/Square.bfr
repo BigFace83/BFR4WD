@@ -1,0 +1,23 @@
+#This is a test
+
+S2 V8 #Set speeds
+S3 V5
+
+S1 V1 #Servo power on
+
+W1 D10
+
+W3 D90
+W1 D10
+
+W3 D90
+W1 D10
+
+W3 D90
+W1 D10
+
+W3 D90
+
+
+S1 V0 #Servo power off
+

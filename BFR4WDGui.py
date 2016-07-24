@@ -1,9 +1,11 @@
 from Tkinter import *
+from tkFileDialog import *
 from PIL import Image
 from PIL import ImageTk
 import BFR4WDserialGUI
 import BFR4WDOpenCVGui
 import math
+import time
 
 
 
@@ -12,11 +14,13 @@ class Application(Frame):
         Frame.__init__(self, master)
         self.grid()
         self.createWidgets()
-        self.updateInterval = 100
+        self.updateInterval = 500
         self.compassAngle = 0
         self.oktoupdatecompass = True
+        self.fileName = StringVar()
         self.after(self.updateInterval, self.updateCompass)
         self.after(self.updateInterval, self.updateSonar)
+        self.after(self.updateInterval, self.updateIR)
 
     def createWidgets(self):
 
@@ -59,10 +63,16 @@ class Application(Frame):
         self.sonarCanvas = Canvas(self, width=152, height=152, bg = 'black')
         self.sonarCanvas.grid(row = 1, column = 4)
 
+        ##################################################################
+        # IR graphics
+        ##################################################################
+        self.irCanvas = Canvas(self, width=152, height=152, bg = 'black')
+        self.irCanvas.grid(row = 0, column = 5)
+
 
 
         self.CamImage = Canvas(self, width=320, height=240,bg = "black")
-        self.CamImage.grid(row = 3, column = 0)
+        self.CamImage.grid(row = 3, column = 0, rowspan = 3)
 
         self.commandEntry= Entry(self)
         self.commandEntry.grid(row = 2, column = 0)
@@ -85,6 +95,20 @@ class Application(Frame):
 
         self.Capturebutton = Button(self, text="Capture", command = self.CaptureImage)
         self.Capturebutton.grid(row = 3, column = 5)
+
+        ##################################################################
+        # BFRCode file handling
+        ##################################################################
+
+        self.loadfileButton = Button(self, text="Load File")
+        self.loadfileButton.grid(row = 3, column = 2)
+        self.loadfileButton.bind('<Button-1>', self.loadFile)
+
+        self.fileEntry= Entry(self)
+        self.fileEntry.grid(row = 4, column = 2)
+
+        self.runfileButton = Button(self, text="Run File", command = self.runFile)
+        self.runfileButton.grid(row = 5, column = 2)
 
 
         self.QUIT = Button(self, text="QUIT", fg="red",command=root.destroy)
@@ -315,13 +339,83 @@ class Application(Frame):
     def updateSonar(self):
         returned = BFR4WDserialGUI.sendcommand('G5')
         self.sonarCanvas.delete("all")
-
         y = 152-(int(returned)/1.5)
-        self.sonarCanvas.create_polygon((76,152),(56,y),(96,y), fill='yellow')
-        #self.sonarCanvas.create_rectangle(56, 152, 96, y, fill='yellow')
-        self.sonarCanvas.create_text(20,132,fill = 'yellow',text = str(returned) + 'cm')
+        if int(returned) <= 40:
+            colour = 'red'
+        elif int(returned) > 40 and int(returned) <= 80:
+            colour = 'orange'
+        else:
+            colour = 'green'
+        self.sonarCanvas.create_polygon((76,152),(56,y),(96,y), fill=colour)
+        self.sonarCanvas.create_text(20,132,fill = colour,text = str(returned) + 'cm')
         self.after(self.updateInterval, self.updateSonar)
+
+    def updateIR(self):
+        LeftIR = BFR4WDserialGUI.sendcommand('G6')
+        RightIR = BFR4WDserialGUI.sendcommand('G7')
+        self.irCanvas.delete("all")
+        YLeft = (int(LeftIR)/4)
+        YRight = (int(RightIR)/4)
+       
+        self.irCanvas.create_rectangle(36,152,56,YLeft, fill='red')
+        self.irCanvas.create_rectangle(96,152,116,YRight, fill='red')
+        self.returnEntry.delete(0,END)
+        self.returnEntry.insert(10, 'Left = ' + str(LeftIR) + ' Right = ' + str(RightIR)) 
+        self.after(self.updateInterval, self.updateIR)
+
+    def loadFile(self,event):
+        self.fileName = askopenfilename(filetypes=[('BFRCode files', '*.bfr')])
+        self.fileEntry.delete(0,END)
+        self.fileEntry.insert(10,self.fileName) 
+
+    def runFile(self):
+        if self.fileName is not None:
+            RunFileSequence(self.fileName)
         
+########################################################################################
+#
+# Run File Sequence
+#
+########################################################################################
+def RunFileSequence(filename):
+
+    f = open(filename, 'r')
+    imagecounter = 0
+
+
+    for x in f:
+        
+        command = x.split("#")[0].rstrip('\n') #remove comments and newline characters
+        if not command: #do nothing if remaining string is empty
+            pass
+        else:
+            print command
+       
+            if 'IMGSAVE' in x:
+                time.sleep(0.3) #Let image settle
+                filename = 'Images/'+str(imagecounter)+".png"
+                print "File Name:  ", filename
+                BFR4WDOpenCVGui.SaveFrame(filename)
+                imagecounter += 1
+
+            else:
+                returned =  BFR4WDserialGUI.sendcommand(command) 
+                if 'E0' in returned:
+                    print "Command Complete"
+                elif 'E1' in returned:
+                    print "Invalid command"
+                    return
+                elif 'E2' in returned:
+                    print "Obstacle: Sonar"
+                    return
+                elif 'E3' in returned:
+                    print "Obstacle: Left IR"
+                    return
+                elif 'E4' in returned:
+                    print "Obstacle: Right IR"
+                    return
+            
+
 
 root = Tk()
 root.title("BFR4WD")
