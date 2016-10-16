@@ -2,7 +2,7 @@ from Tkinter import *
 from tkFileDialog import *
 from PIL import Image
 from PIL import ImageTk
-import BFR4WDserialGUI
+import BFR4WDserialport
 import BFR4WDOpenCVGui
 import math
 import time
@@ -116,7 +116,7 @@ class Application(Frame):
 
 
     def sendCommand(self,event):
-        returned = BFR4WDserialGUI.sendcommand(self.commandEntry.get())
+        returned = BFR4WDserialport.sendcommand(self.commandEntry.get())
         self.returnEntry.delete(0,END)
         self.returnEntry.insert(10,returned) 
         self.commandEntry.delete(0,END)
@@ -130,73 +130,73 @@ class Application(Frame):
         # Speed select bar clicked
         if event.y > 10 and event.y < 40:
             if event.x >= 5 and event.x < 30:
-                returned = BFR4WDserialGUI.sendcommand('S2V2')
+                returned = BFR4WDserialport.sendcommand('S2V2')
                 self.returnEntry.insert(10,returned)
             elif event.x >= 30 and event.x < 55:
-                returned = BFR4WDserialGUI.sendcommand('S2V4')
+                returned = BFR4WDserialport.sendcommand('S2V4')
                 self.returnEntry.insert(10,returned)
             elif event.x >= 55 and event.x < 79:
-                returned = BFR4WDserialGUI.sendcommand('S2V6')
+                returned = BFR4WDserialport.sendcommand('S2V6')
                 self.returnEntry.insert(10,returned)
             elif event.x >= 79 and event.x < 104:
-                returned = BFR4WDserialGUI.sendcommand('S2V8')
+                returned = BFR4WDserialport.sendcommand('S2V8')
                 self.returnEntry.insert(10,returned)
             elif event.x >= 104 and event.x < 126:
-                returned = BFR4WDserialGUI.sendcommand('S2V10')
+                returned = BFR4WDserialport.sendcommand('S2V10')
                 self.returnEntry.insert(10,returned)
         #Forward bar clicked
         if event.x > 133 and event.x < 170:
             if event.y >= 5 and event.y < 38:
-                returned = BFR4WDserialGUI.sendcommand('W1D50')
+                returned = BFR4WDserialport.sendcommand('W1D50')
                 self.returnEntry.insert(10,returned)
             if event.y >= 38 and event.y < 70:
-                returned = BFR4WDserialGUI.sendcommand('W1D30')
+                returned = BFR4WDserialport.sendcommand('W1D30')
                 self.returnEntry.insert(10,returned)
             if event.y >= 70 and event.y < 102:
-                returned = BFR4WDserialGUI.sendcommand('W1D10')
+                returned = BFR4WDserialport.sendcommand('W1D10')
                 self.returnEntry.insert(10,returned)
             if event.y >= 102 and event.y < 133:
-                returned = BFR4WDserialGUI.sendcommand('W1D5')
+                returned = BFR4WDserialport.sendcommand('W1D5')
                 self.returnEntry.insert(10,returned)
         #Reverse bar clicked
             if event.y >= 170 and event.y < 204:
-                returned = BFR4WDserialGUI.sendcommand('W2D5')
+                returned = BFR4WDserialport.sendcommand('W2D5')
                 self.returnEntry.insert(10,returned)
             if event.y >= 204 and event.y < 235:
-                returned = BFR4WDserialGUI.sendcommand('W2D10')
+                returned = BFR4WDserialport.sendcommand('W2D10')
                 self.returnEntry.insert(10,returned)
             if event.y >= 235 and event.y < 268:
-                returned = BFR4WDserialGUI.sendcommand('W2D30')
+                returned = BFR4WDserialport.sendcommand('W2D30')
                 self.returnEntry.insert(10,returned)
             if event.y >= 268 and event.y < 300:
-                returned = BFR4WDserialGUI.sendcommand('W2D50')
+                returned = BFR4WDserialport.sendcommand('W2D50')
                 self.returnEntry.insert(10,returned)
         #Turn ACW bar clicked
         if event.y > 134 and event.y < 172:
             if event.x >= 5 and event.x < 38:
-                returned = BFR4WDserialGUI.sendcommand('W3D120')
+                returned = BFR4WDserialport.sendcommand('W3D120')
                 self.returnEntry.insert(10,returned)
             if event.x >= 38 and event.x < 70:
-                returned = BFR4WDserialGUI.sendcommand('W3D90')
+                returned = BFR4WDserialport.sendcommand('W3D90')
                 self.returnEntry.insert(10,returned)
             if event.x >= 70 and event.x < 102:
-                returned = BFR4WDserialGUI.sendcommand('W3D45')
+                returned = BFR4WDserialport.sendcommand('W3D45')
                 self.returnEntry.insert(10,returned)
             if event.x >= 102 and event.x < 133:
-                returned = BFR4WDserialGUI.sendcommand('W3D30')
+                returned = BFR4WDserialport.sendcommand('W3D30')
                 self.returnEntry.insert(10,returned)
         #Turn CW bar clicked
             if event.x >= 170 and event.x < 204:
-                returned = BFR4WDserialGUI.sendcommand('W4D30')
+                returned = BFR4WDserialport.sendcommand('W4D30')
                 self.returnEntry.insert(10,returned)
             if event.x >= 204 and event.x < 235:
-                returned = BFR4WDserialGUI.sendcommand('W4D45')
+                returned = BFR4WDserialport.sendcommand('W4D45')
                 self.returnEntry.insert(10,returned)
             if event.x >= 235 and event.x < 268:
-                returned = BFR4WDserialGUI.sendcommand('W4D90')
+                returned = BFR4WDserialport.sendcommand('W4D90')
                 self.returnEntry.insert(10,returned)
             if event.x >= 268 and event.x < 300:
-                returned = BFR4WDserialGUI.sendcommand('W4D120')
+                returned = BFR4WDserialport.sendcommand('W4D120')
                 self.returnEntry.insert(10,returned)
 
             
@@ -210,77 +210,77 @@ class Application(Frame):
         # Speed select bar clicked
         if event.y > 10 and event.y < 40:
             if event.x >= 5 and event.x < 30:
-                returned = BFR4WDserialGUI.sendcommand('S3V2')
+                returned = BFR4WDserialport.sendcommand('S3V2')
                 self.returnEntry.insert(10,returned)
             elif event.x >= 30 and event.x < 55:
-                returned = BFR4WDserialGUI.sendcommand('S3V4')
+                returned = BFR4WDserialport.sendcommand('S3V4')
                 self.returnEntry.insert(10,returned)
             elif event.x >= 55 and event.x < 79:
-                returned = BFR4WDserialGUI.sendcommand('S3V6')
+                returned = BFR4WDserialport.sendcommand('S3V6')
                 self.returnEntry.insert(10,returned)
             elif event.x >= 79 and event.x < 104:
-                returned = BFR4WDserialGUI.sendcommand('S3V8')
+                returned = BFR4WDserialport.sendcommand('S3V8')
                 self.returnEntry.insert(10,returned)
             elif event.x >= 104 and event.x < 126:
-                returned = BFR4WDserialGUI.sendcommand('S3V10')
+                returned = BFR4WDserialport.sendcommand('S3V10')
                 self.returnEntry.insert(10,returned)
         #Head tilt up clicked
         if event.x > 133 and event.x < 170:
             if event.y >= 5 and event.y < 38:
-                returned = BFR4WDserialGUI.sendcommand('H1T75')
+                returned = BFR4WDserialport.sendcommand('H1T75')
                 self.returnEntry.insert(10,returned)
             if event.y >= 38 and event.y < 70:
-                returned = BFR4WDserialGUI.sendcommand('H1T50')
+                returned = BFR4WDserialport.sendcommand('H1T50')
                 self.returnEntry.insert(10,returned)
             if event.y >= 70 and event.y < 102:
-                returned = BFR4WDserialGUI.sendcommand('H1T25')
+                returned = BFR4WDserialport.sendcommand('H1T25')
                 self.returnEntry.insert(10,returned)
             if event.y >= 102 and event.y < 133:
-                returned = BFR4WDserialGUI.sendcommand('H1T10')
+                returned = BFR4WDserialport.sendcommand('H1T10')
                 self.returnEntry.insert(10,returned)
         #Centralise head pan and tilt if central section is clicked 
             if event.y >= 133 and event.y < 170:
-                returned = BFR4WDserialGUI.sendcommand('H1T0P0')
+                returned = BFR4WDserialport.sendcommand('H1T0P0')
                 self.returnEntry.insert(10,returned)
         #Head tilt down clicked
             if event.y >= 170 and event.y < 204:
-                returned = BFR4WDserialGUI.sendcommand('H1T-10')
+                returned = BFR4WDserialport.sendcommand('H1T-10')
                 self.returnEntry.insert(10,returned)
             if event.y >= 204 and event.y < 235:
-                returned = BFR4WDserialGUI.sendcommand('H1T-25')
+                returned = BFR4WDserialport.sendcommand('H1T-25')
                 self.returnEntry.insert(10,returned)
             if event.y >= 235 and event.y < 268:
-                returned = BFR4WDserialGUI.sendcommand('H1T-50')
+                returned = BFR4WDserialport.sendcommand('H1T-50')
                 self.returnEntry.insert(10,returned)
             if event.y >= 268 and event.y < 300:
-                returned = BFR4WDserialGUI.sendcommand('H1T-75')
+                returned = BFR4WDserialport.sendcommand('H1T-75')
                 self.returnEntry.insert(10,returned)
         #Head pan ACW clicked
         if event.y > 134 and event.y < 172:
             if event.x >= 5 and event.x < 38:
-                returned = BFR4WDserialGUI.sendcommand('H1P-75')
+                returned = BFR4WDserialport.sendcommand('H1P-75')
                 self.returnEntry.insert(10,returned)
             if event.x >= 38 and event.x < 70:
-                returned = BFR4WDserialGUI.sendcommand('H1P-50')
+                returned = BFR4WDserialport.sendcommand('H1P-50')
                 self.returnEntry.insert(10,returned)
             if event.x >= 70 and event.x < 102:
-                returned = BFR4WDserialGUI.sendcommand('H1P-25')
+                returned = BFR4WDserialport.sendcommand('H1P-25')
                 self.returnEntry.insert(10,returned)
             if event.x >= 102 and event.x < 133:
-                returned = BFR4WDserialGUI.sendcommand('H1P-10')
+                returned = BFR4WDserialport.sendcommand('H1P-10')
                 self.returnEntry.insert(10,returned)
         #Head pan CW clicked
             if event.x >= 170 and event.x < 204:
-                returned = BFR4WDserialGUI.sendcommand('H1P10')
+                returned = BFR4WDserialport.sendcommand('H1P10')
                 self.returnEntry.insert(10,returned)
             if event.x >= 204 and event.x < 235:
-                returned = BFR4WDserialGUI.sendcommand('H1P25')
+                returned = BFR4WDserialport.sendcommand('H1P25')
                 self.returnEntry.insert(10,returned)
             if event.x >= 235 and event.x < 268:
-                returned = BFR4WDserialGUI.sendcommand('H1P50')
+                returned = BFR4WDserialport.sendcommand('H1P50')
                 self.returnEntry.insert(10,returned)
             if event.x >= 268 and event.x < 300:
-                returned = BFR4WDserialGUI.sendcommand('H1P75')
+                returned = BFR4WDserialport.sendcommand('H1P75')
                 self.returnEntry.insert(10,returned)
 
 
@@ -300,7 +300,7 @@ class Application(Frame):
         self.compassControl.create_line(76, 76, circlex, circley, fill="black", width=3)
 
     def commandHeading(self,event):
-        returned = BFR4WDserialGUI.sendcommand('W7V' + str(self.compassAngle))
+        returned = BFR4WDserialport.sendcommand('W7V' + str(self.compassAngle))
         self.returnEntry.insert(10,returned)
         self.oktoupdatecompass = True
         self.after(self.updateInterval, self.updateCompass) #restart drawing actual value after new angle is sent
@@ -309,12 +309,12 @@ class Application(Frame):
 
         
     def servoOn(self,event):
-        returned = BFR4WDserialGUI.sendcommand('S1V1')
+        returned = BFR4WDserialport.sendcommand('S1V1')
         self.returnEntry.delete(0,END)
         self.returnEntry.insert(10,returned) 
 
     def servoOff(self,event):
-        returned = BFR4WDserialGUI.sendcommand('S1V0')
+        returned = BFR4WDserialport.sendcommand('S1V0')
         self.returnEntry.delete(0,END)
         self.returnEntry.insert(10,returned) 
 
@@ -328,7 +328,7 @@ class Application(Frame):
 
     def updateCompass(self):
         self.compassControl.create_oval(25, 25, 127, 127, fill="white",outline="white")
-        returned = BFR4WDserialGUI.sendcommand('G8')
+        returned = BFR4WDserialport.sendcommand('G8')
         anglerad = math.radians(float(returned))
         circlex = 76 + (math.sin(anglerad)*51)
         circley = 76 - (math.cos(anglerad)*51)
@@ -337,7 +337,7 @@ class Application(Frame):
             self.after(self.updateInterval, self.updateCompass)
 
     def updateSonar(self):
-        returned = BFR4WDserialGUI.sendcommand('G5')
+        returned = BFR4WDserialport.sendcommand('G5')
         self.sonarCanvas.delete("all")
         y = 152-(int(returned)/1.5)
         if int(returned) <= 40:
@@ -351,8 +351,8 @@ class Application(Frame):
         self.after(self.updateInterval, self.updateSonar)
 
     def updateIR(self):
-        LeftIR = BFR4WDserialGUI.sendcommand('G6')
-        RightIR = BFR4WDserialGUI.sendcommand('G7')
+        LeftIR = BFR4WDserialport.sendcommand('G6')
+        RightIR = BFR4WDserialport.sendcommand('G7')
         self.irCanvas.delete("all")
         YLeft = (int(LeftIR)/4)
         YRight = (int(RightIR)/4)
@@ -399,7 +399,7 @@ def RunFileSequence(filename):
                 imagecounter += 1
 
             else:
-                returned =  BFR4WDserialGUI.sendcommand(command) 
+                returned =  BFR4WDserialport.sendcommand(command) 
                 if 'E0' in returned:
                     print "Command Complete"
                 elif 'E1' in returned:

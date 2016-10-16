@@ -19,16 +19,12 @@ Global variables
 **************************************/
 int FLencoder;
 int FLencodertotal;
-int FLencoderreturn;
 int RLencoder;
 int RLencodertotal;
-int RLencoderreturn;
 int FRencoder;
 int FRencodertotal;
-int FRencoderreturn;
 int RRencoder;
 int RRencodertotal;
-int RRencoderreturn;
 
 float pulsespercm = 6.94;
 float pulsesperdegree = 2.1;
@@ -59,21 +55,18 @@ void incrementFL()
 {
   FLencoder ++;
   FLencodertotal ++;
-  FLencoderreturn ++;
 }
 
 void incrementRL()
 {
   RLencoder ++;
   RLencodertotal ++;
-  RLencoderreturn ++;
 }
 
 void incrementFR()
 {
   FRencoder ++;
   FRencodertotal ++;
-  FRencoderreturn ++;
 }
 
 
@@ -81,7 +74,6 @@ void incrementRR()
 {
   RRencoder ++;
   RRencodertotal ++;
-  RRencoderreturn ++;
 }
 
 
@@ -387,23 +379,23 @@ void interpretcommand()
     Gvalue = findchar('G');
     switch(Gvalue){
     case(1):{
-        Serial.println(FLencoderreturn);
-        FLencoderreturn = 0;
+        int encodercm = FLencodertotal/pulsespercm;
+        Serial.println(encodercm);
         validcommand = true;
         break;}
     case(2):{
-        Serial.println(RLencoderreturn);
-        RLencoderreturn = 0;
+        int encodercm = RLencodertotal/pulsespercm;
+        Serial.println(encodercm);
         validcommand = true;
         break;}
     case(3):{
-        Serial.println(FRencoderreturn);
-        FRencoderreturn = 0;
+        int encodercm = FRencodertotal/pulsespercm;
+        Serial.println(encodercm);
         validcommand = true;
         break;}
     case(4):{
-        Serial.println(RRencoderreturn);
-        RRencoderreturn = 0;
+        int encodercm = RRencodertotal/pulsespercm;
+        Serial.println(encodercm);
         validcommand = true;
         break;}
     case(5):{

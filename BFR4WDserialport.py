@@ -10,26 +10,22 @@ time.sleep(1) # wait here a bit, let arduino boot up fully before sending data
 print ("Port open:  " + ser.portstr)       # check which port was really used
 ser.flushInput()
 
+
 def readserial():
     while True:
         if ser.inWaiting()>0:
             #time.sleep(0.1) #let all of the data get here
             line = ser.readline()
-            return line.rstrip('\n')
-
-    
-def writeserial(serialdata):
-    ser.write(serialdata + '\n') #Write data string, newline terminated
+            return line.rstrip('\r\n')
 
 
 def sendcommand(serialdata):
     ser.write(serialdata + '\n') #Write data string, newline terminated
-
     while True: #Wait here until the returned string is received
         if ser.inWaiting()>0:
             #time.sleep(0.1) #let all of the data get here
             line = ser.readline()
-            return line.rstrip('\n')
+            return line.rstrip('\r\n')
 
 def closeserial():
     ser.close() 
